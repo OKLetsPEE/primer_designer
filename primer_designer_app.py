@@ -83,17 +83,28 @@ if st.button("开始设计引物"):
                 st.success(f"成功筛选出综合最优的 {pairs_found} 对引物！以及，我实在懒得写额外的代码让程序判断你之前到底选择了什么模式了，所以请自行确认你真的选择了正确的设计模式！")
                 st.caption(status_msg)
                 
+                def calculate_gc(seq):
+                    if not seq: return 0.0
+                    return (seq.count('G') + seq.count('C')) / len(seq) * 100
+                
                 for i in range(pairs_found):
-                    with st.expander(f"方案 {i+1} (产物: {results[f'PRIMER_PAIR_{i}_PRODUCT_SIZE']} bp)", expanded=(i==0)):
-                        c1, c2 = st.columns(2)
-                        with c1:
+                    f_seq = results[f'PRIMER_LEFT_{i}_SEQUENCE']
+                    r_seq = results[f'PRIMER_RIGHT_{i}_SEQUENCE']
+                    f_gc = calculate_gc(f_seq)
+                    r_gc = calculate_gc(r_seq)
+                    f_tm = results[f'PRIMER_LEFT_{i}_TM']
+                    r_tm = results[f'PRIMER_RIGHT_{i}_TM']
+                    prod_size = results[f'PRIMER_PAIR_{i}_PRODUCT_SIZE']
+                    with st.expander(f"方案 {i+1} (产物: {prod_size} bp)", expanded=(i==0)):
+                        col1, col2 = st.columns(2)
+                        with col1:
                             st.markdown("**Forward Primer**")
-                            st.code(results[f'PRIMER_LEFT_{i}_SEQUENCE'])
-                            st.text(f"Tm: {results[f'PRIMER_LEFT_{i}_TM']:.1f}°C | GC: {results[f'PRIMER_LEFT_{i}_GC_PERCENT']:.1f}%")
-                        with c2:
+                            st.code(f_seq)
+                            st.text(f"Tm: {f_tm:.1f}°C | GC: {f_gc:.1f}%")
+                        with col2:
                             st.markdown("**Reverse Primer**")
-                            st.code(results[f'PRIMER_RIGHT_{i}_SEQUENCE'])
-                            st.text(f"Tm: {results[f'PRIMER_RIGHT_{i}_TM']:.1f}°C | GC: {results[f'PRIMER_RIGHT_{i}_GC_PERCENT']:.1f}%")
+                            st.code(r_seq)
+                            st.text(f"Tm: {r_tm:.1f}°C | GC: {r_gc:.1f}%")
 
         except Exception as e:
             st.error(f"你把我代码搞得运行出错了！请你先反思自己 1 min，反思完看看错误代码，它会告诉你刚才到底犯了什么蠢逼错误: {e}")
