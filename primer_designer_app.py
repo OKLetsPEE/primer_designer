@@ -2,14 +2,14 @@ import streamlit as st
 import primer3
 
 # --- 页面配置 ---
-st.set_page_config(page_title="Chanz觉得你的时间很宝贵", page_icon="🧬")
+st.set_page_config(page_title="Chanz觉得你的时间很宝贵")
 
-st.title("Chanz帮你一秒设计引物")
-st.markdown("请现在侧边栏选择设计模式 | 模式 1 & 2 专为 circRNA 优化 ｜ 常规引物设计请选择模式3！")
+st.title("Chanz帮你设计引物")
+st.markdown("粘贴序列前请先在侧边栏选择设计模式 | 模式 1 & 2 专为 circRNA 优化 ｜ 常规引物设计请选择模式3！| Written by Chanz")
 
 # --- 侧边栏：参数设置 ---
 with st.sidebar:
-    st.header("⚙️ 参数设置")
+    st.header("参数设置")
     mode = st.radio(
         "选择设计模式",
         (1, 2, 3),
@@ -25,9 +25,9 @@ with st.sidebar:
 raw_input = st.text_area("在此粘贴基因序列 (5'->3')", height=150, placeholder="ATGC...")
 clean_seq = raw_input.replace(" ", "").replace("\n", "").replace("\r", "").upper()
 
-if st.button("🚀 开始设计引物"):
+if st.button("开始设计引物"):
     if not clean_seq:
-        st.error("请输入序列！")
+        st.error("麻烦在上面把要设计的序列先粘贴给我，你这人，一天天云里雾里的 = =#")
     else:
         seq_len = len(clean_seq)
         # 初始化基础参数
