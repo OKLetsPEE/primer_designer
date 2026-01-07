@@ -5,7 +5,7 @@ import primer3
 st.set_page_config(page_title="Chanz觉得你的时间很宝贵")
 
 st.title("Chanz帮你设计引物")
-st.markdown("粘贴序列前请先在侧边栏选择设计模式  |  常规引物设计请选择模式3 ｜ 模式 1 & 2 专为 circRNA 优化  |  Written by Chanz")
+st.markdown("粘贴序列前请先在左侧边栏选择设计模式 | 常规引物设计请选择模式3 | 模式 1 & 2 专为 circRNA 优化 | Written by Chanz")
 
 # --- 侧边栏：参数设置 ---
 with st.sidebar:
