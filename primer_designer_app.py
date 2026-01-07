@@ -22,7 +22,7 @@ with st.sidebar:
     st.info("模式说明：\n\n**模式1**: 模拟环化，产物 80-150bp\n\n**模式2**: 模拟环化，产物 250-600bp\n\n**模式3**: 常规线性设计")
 
 # --- 主界面 ---
-raw_input = st.text_area("在此粘贴基因序列 (5'->3')", height=150, placeholder="ATGC...")
+raw_input = st.text_area("在此粘贴基因序列 (5' → 3')", height=150, placeholder="ATGC...")
 clean_seq = raw_input.replace(" ", "").replace("\n", "").replace("\r", "").upper()
 
 if st.button("开始设计引物"):
