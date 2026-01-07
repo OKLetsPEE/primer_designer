@@ -1,0 +1,2 @@
+streamlit
+primer3-py
