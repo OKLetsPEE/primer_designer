@@ -5,7 +5,7 @@ import primer3
 st.set_page_config(page_title="Chanz觉得你的时间很宝贵")
 
 st.title("Chanz帮你设计引物")
-st.markdown("粘贴序列前请先在侧边栏选择设计模式 | 模式 1 & 2 专为 circRNA 优化 ｜ 常规引物设计请选择模式3！| Written by Chanz")
+st.markdown("粘贴序列前请先在侧边栏选择设计模式 | 常规引物设计请选择模式3 ｜ 模式 1 & 2 专为 circRNA 优化 | Written by Chanz")
 
 # --- 侧边栏：参数设置 ---
 with st.sidebar:
@@ -80,7 +80,7 @@ if st.button("开始设计引物"):
             if pairs_found == 0:
                 st.warning("未找到合适的引物，请尝试放宽条件或检查序列长度。")
             else:
-                st.success(f"成功找到 {pairs_found} 对引物！")
+                st.success(f"成功找到 {pairs_found} 对引物！以及，我实在懒得写额外的代码让程序判断你之前到底选择了什么模式了，所以请自行确认你真的选择了正确的设计模式！")
                 st.caption(status_msg)
                 
                 for i in range(pairs_found):
