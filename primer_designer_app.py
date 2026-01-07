@@ -80,7 +80,7 @@ if st.button("开始设计引物"):
             if pairs_found == 0:
                 st.warning("我居然找不到哪怕一对合适的引物，这基本不可能，你到底粘贴了个什么鬼东西给我？")
             else:
-                st.success(f"成功筛选出综合最优的 {pairs_found} 对引物！以及，我实在懒得写额外的代码让程序判断你之前到底选择了什么模式了，所以请自行确认你真的选择了正确的设计模式！")
+                st.success(f"成功筛选出综合最优的 {pairs_found} 对引物！以及，请务必根据输出结果给出的提示确认你真的选择了正确的设计模式，我专门写了防呆的判断代码！")
                 st.caption(status_msg)
                 
                 def calculate_gc(seq):
