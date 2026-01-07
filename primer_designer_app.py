@@ -2,10 +2,10 @@ import streamlit as st
 import primer3
 
 # --- 页面配置 ---
-st.set_page_config(page_title="Chanz帮你一秒设计引物", page_icon="🧬")
+st.set_page_config(page_title="Chanz觉得你的时间很宝贵", page_icon="🧬")
 
-st.title("Chanz觉得你的时间很宝贵")
-st.markdown("Written by Chanz | 模式 1 & 2 专为 circRNA 优化 ｜ 常规引物设计请选择模式3！")
+st.title("Chanz帮你一秒设计引物")
+st.markdown("请现在侧边栏选择设计模式 | 模式 1 & 2 专为 circRNA 优化 ｜ 常规引物设计请选择模式3！")
 
 # --- 侧边栏：参数设置 ---
 with st.sidebar:
