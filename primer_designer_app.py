@@ -171,7 +171,7 @@ def calculate_gc(seq: str) -> float:
     return (seq.count("G") + seq.count("C")) / len(seq) * 100
 
 
-def build_primer3_args(clean_seq: str, mode: int):
+def build_primer3_args(clean_seq: str, mode: int, primer_settings: dict | None = None):
     """根据模式生成 primer3 的 sequence args 与 global args。"""
     seq_len = len(clean_seq)
 
@@ -187,6 +187,9 @@ def build_primer3_args(clean_seq: str, mode: int):
         "PRIMER_MAX_GC": 60.0,
         "PRIMER_MAX_POLY_X": 5,
     }
+
+    if primer_settings:
+        global_args.update(primer_settings)
 
     final_sequence = clean_seq
     seq_args = {
@@ -241,6 +244,43 @@ with st.sidebar:
         "**模式2**: 模拟环化，强制跨接头，产物 250-600bp\n\n"
         "**模式3**: 常规线性设计，产物 80-200bp"
     )
+
+    with st.expander("高级参数：Tm / GC / 引物长度", expanded=False):
+        st.caption(
+            "默认参数会强烈优先选择 Tm 接近 60°C 的引物；"
+            "如果你想看到更多变化，可以在这里调整。"
+        )
+        primer_opt_tm = st.number_input("目标 Tm (°C)", min_value=45.0, max_value=75.0, value=60.0, step=0.5)
+        tm_col1, tm_col2 = st.columns(2)
+        with tm_col1:
+            primer_min_tm = st.number_input("最低 Tm (°C)", min_value=40.0, max_value=75.0, value=57.0, step=0.5)
+        with tm_col2:
+            primer_max_tm = st.number_input("最高 Tm (°C)", min_value=40.0, max_value=80.0, value=63.0, step=0.5)
+
+        size_col1, size_col2, size_col3 = st.columns(3)
+        with size_col1:
+            primer_min_size = st.number_input("最短引物 nt", min_value=15, max_value=35, value=18, step=1)
+        with size_col2:
+            primer_opt_size = st.number_input("最佳引物 nt", min_value=15, max_value=35, value=20, step=1)
+        with size_col3:
+            primer_max_size = st.number_input("最长引物 nt", min_value=15, max_value=35, value=25, step=1)
+
+        gc_col1, gc_col2 = st.columns(2)
+        with gc_col1:
+            primer_min_gc = st.number_input("最低 GC (%)", min_value=20.0, max_value=80.0, value=40.0, step=1.0)
+        with gc_col2:
+            primer_max_gc = st.number_input("最高 GC (%)", min_value=20.0, max_value=90.0, value=60.0, step=1.0)
+
+    primer_settings = {
+        "PRIMER_OPT_TM": float(primer_opt_tm),
+        "PRIMER_MIN_TM": float(primer_min_tm),
+        "PRIMER_MAX_TM": float(primer_max_tm),
+        "PRIMER_MIN_SIZE": int(primer_min_size),
+        "PRIMER_OPT_SIZE": int(primer_opt_size),
+        "PRIMER_MAX_SIZE": int(primer_max_size),
+        "PRIMER_MIN_GC": float(primer_min_gc),
+        "PRIMER_MAX_GC": float(primer_max_gc),
+    }
 
 # --- 主界面 ---
 st.subheader("输入序列")
@@ -308,7 +348,7 @@ if st.button("开始设计引物"):
         st.warning("N 的比例超过 5%，建议尽量使用更完整的 A/T/G/C 序列，否则可能影响引物设计结果。")
 
     try:
-        seq_args, global_args, status_msg = build_primer3_args(clean_seq, mode)
+        seq_args, global_args, status_msg = build_primer3_args(clean_seq, mode, primer_settings)
         results = primer3.bindings.design_primers(seq_args, global_args)
         pairs_found = results.get("PRIMER_PAIR_NUM_RETURNED", 0)
 
@@ -324,10 +364,13 @@ if st.button("开始设计引物"):
             for i in range(pairs_found):
                 f_seq = results[f"PRIMER_LEFT_{i}_SEQUENCE"]
                 r_seq = results[f"PRIMER_RIGHT_{i}_SEQUENCE"]
-                f_gc = calculate_gc(f_seq)
-                r_gc = calculate_gc(r_seq)
+                # 优先使用 Primer3 返回的 GC_PERCENT；如果某些版本没有该键，再用手动计算兜底。
+                f_gc = results.get(f"PRIMER_LEFT_{i}_GC_PERCENT", calculate_gc(f_seq))
+                r_gc = results.get(f"PRIMER_RIGHT_{i}_GC_PERCENT", calculate_gc(r_seq))
                 f_tm = results[f"PRIMER_LEFT_{i}_TM"]
                 r_tm = results[f"PRIMER_RIGHT_{i}_TM"]
+                f_gc_count = f_seq.count("G") + f_seq.count("C")
+                r_gc_count = r_seq.count("G") + r_seq.count("C")
                 prod_size = results[f"PRIMER_PAIR_{i}_PRODUCT_SIZE"]
 
                 with st.expander(f"方案 {i + 1} (产物: {prod_size} bp)", expanded=(i == 0)):
@@ -335,11 +378,11 @@ if st.button("开始设计引物"):
                     with col1:
                         st.markdown("**Forward Primer**")
                         st.code(f_seq, language="text")
-                        st.text(f"Tm: {f_tm:.1f}°C | GC: {f_gc:.1f}%")
+                        st.text(f"Length: {len(f_seq)} nt | Tm: {f_tm:.2f}°C | GC: {f_gc:.2f}% ({f_gc_count}/{len(f_seq)})")
                     with col2:
                         st.markdown("**Reverse Primer**")
                         st.code(r_seq, language="text")
-                        st.text(f"Tm: {r_tm:.1f}°C | GC: {r_gc:.1f}%")
+                        st.text(f"Length: {len(r_seq)} nt | Tm: {r_tm:.2f}°C | GC: {r_gc:.2f}% ({r_gc_count}/{len(r_seq)})")
 
     except Exception as e:
         st.error(f"运行出错：{e}")
